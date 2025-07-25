@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Interactivo del Gemini CLI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: Se ha diseñado una SPA con una estructura temática y orientada a tareas, en lugar de seguir el orden lineal del informe. La arquitectura incluye: 1) Una sección Hero para un impacto inicial. 2) Una guía de "Primeros Pasos". 3) Un panel interactivo con pestañas para "Explorar Capacidades" (Desarrollo, Automatización, Investigación, Creación), que es el núcleo de la aplicación y permite al usuario centrarse en su caso de uso. 4) Una sección de "Potencia Avanzada" para usuarios expertos. 5) Una visualización interactiva de "Comandos Esenciales" usando Chart.js para reemplazar la tabla estática, mejorando la usabilidad. 6) Una sección de "Mejores Prácticas". Esta estructura prioriza la exploración no lineal y el descubrimiento guiado por tareas, haciendo la información más digerible y atractiva. -->
+    <!-- Visualization & Content Choices: 1. Capacidades Principales -> Pestañas interactivas -> El usuario puede cambiar entre contextos (desarrollo, automatización) para ver casos de uso relevantes. Justificación: Organiza una gran cantidad de información en fragmentos manejables. Método: HTML/CSS/JS. 2. Tabla de Comandos -> Gráfico de barras horizontal interactivo -> El usuario hace clic en una categoría de comando (ej. "Gestión de Sesión") y ve los detalles en un área de texto separada. Justificación: Transforma datos tabulares estáticos en una experiencia de exploración visual y atractiva. Biblioteca: Chart.js (Canvas). 3. Características Avanzadas -> Cuadrícula de tarjetas con iconos -> Presentación visual rápida de conceptos complejos como MCP y personalización. Justificación: Mejora la legibilidad y el atractivo visual. Método: HTML/Tailwind. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F7F4;
+            color: #4A4A4A;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 450px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 450px;
+            }
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link.active, .nav-link:hover {
+            color: #5A8A82;
+            border-bottom-color: #5A8A82;
+        }
+        .tab-button {
+            transition: all 0.3s;
+        }
+        .tab-button.active {
+            background-color: #5A8A82;
+            color: #F8F7F4;
+        }
+        .card {
+            background-color: #FFFFFF;
+            border: 1px solid #E5E2DE;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header id="header" class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-[#5A8A82]">Gemini CLI</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#inicio" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Inicio</a>
+                        <a href="#capacidades" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Capacidades</a>
+                        <a href="#comandos" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Comandos</a>
+                        <a href="#avanzado" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Avanzado</a>
+                        <a href="#buenas-practicas" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Prácticas</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="inicio" class="py-20 md:py-28">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h2 class="text-4xl md:text-6xl font-bold tracking-tight text-[#4A4A4A]">Tu Compañero de IA en la Terminal</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg md:text-xl text-gray-600">
+                    Descubre Gemini CLI, el agente de IA de código abierto que integra el poder de los modelos de Google directamente en tu flujo de trabajo, permitiéndote codificar, automatizar, investigar y crear con una eficiencia sin precedentes.
+                </p>
+                <div class="mt-10">
+                    <a href="#capacidades" class="bg-[#5A8A82] text-white font-bold py-3 px-8 rounded-full hover:bg-[#4a7a72] transition-colors">Explora las Capacidades</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="primeros-pasos" class="py-16 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl font-bold text-[#4A4A4A]">Primeros Pasos</h3>
+                    <p class="mt-2 text-lg text-gray-600">Comenzar es muy sencillo. Sigue estos pasos para instalar y configurar Gemini CLI en tu sistema.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                    <div class="card p-6 rounded-lg">
+                        <div class="text-4xl mb-4 text-[#5A8A82]">1</div>
+                        <h4 class="text-xl font-semibold mb-2">Instalación</h4>
+                        <p class="text-gray-600">Asegúrate de tener Node.js (v18+) y luego ejecuta el siguiente comando en tu terminal:</p>
+                        <code class="mt-4 inline-block bg-gray-100 text-gray-800 p-2 rounded-md text-sm w-full">npm install -g @google/gemini-cli</code>
+                    </div>
+                    <div class="card p-6 rounded-lg">
+                        <div class="text-4xl mb-4 text-[#5A8A82]">2</div>
+                        <h4 class="text-xl font-semibold mb-2">Autenticación</h4>
+                        <p class="text-gray-600">Ejecuta <code class="bg-gray-100 text-gray-800 p-1 rounded-md">gemini</code>. La primera vez, se abrirá un navegador para que inicies sesión con tu cuenta de Google y obtengas acceso gratuito.</p>
+                    </div>
+                    <div class="card p-6 rounded-lg">
+                        <div class="text-4xl mb-4 text-[#5A8A82]">3</div>
+                        <h4 class="text-xl font-semibold mb-2">¡Listo para Usar!</h4>
+                        <p class="text-gray-600">Ya puedes interactuar con Gemini. Prueba pidiendo ayuda con <code class="bg-gray-100 text-gray-800 p-1 rounded-md">/help</code> para ver todos los comandos disponibles.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="capacidades" class="py-20">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl font-bold text-[#4A4A4A]">Explora las Capacidades</h3>
+                    <p class="mt-2 text-lg text-gray-600">Gemini CLI no es solo un chat. Es un agente versátil que transforma tu manera de trabajar. Selecciona una categoría para descubrir cómo puede ayudarte en tus tareas diarias.</p>
+                </div>
+                <div class="max-w-4xl mx-auto">
+                    <div class="flex justify-center flex-wrap gap-2 mb-8" id="tabs-container">
+                        <button data-tab="desarrollo" class="tab-button active font-semibold py-2 px-4 rounded-full">Desarrollo de Software</button>
+                        <button data-tab="automatizacion" class="tab-button font-semibold py-2 px-4 rounded-full">Automatización</button>
+                        <button data-tab="investigacion" class="tab-button font-semibold py-2 px-4 rounded-full">Investigación</button>
+                        <button data-tab="creacion" class="tab-button font-semibold py-2 px-4 rounded-full">Creación de Contenido</button>
+                    </div>
+                    <div id="tabs-content">
+                        <div id="desarrollo-content" class="tab-content">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="card p-6 rounded-lg">
+                                    <h4 class="text-lg font-semibold mb-2">Comprensión de Código</h4>
+                                    <p class="text-gray-600">Analiza bases de código masivas. Pídele que resuma la arquitectura de un proyecto entero usando <code class="bg-gray-100 text-gray-800 p-1 rounded-md">@.</code> para referenciar el directorio actual.</p>
+                                </div>
+                                <div class="card p-6 rounded-lg">
+                                    <h4 class="text-lg font-semibold mb-2">Generación y Refactorización</h4>
+                                    <p class="text-gray-600">Genera funciones, componentes o clases completas. Optimiza y refactoriza código existente con simples instrucciones en lenguaje natural.</p>
+                                </div>
+                                <div class="card p-6 rounded-lg">
+                                    <h4 class="text-lg font-semibold mb-2">Depuración Eficiente</h4>
+                                    <p class="text-gray-600">Pega un error y el código problemático. Gemini analizará la causa raíz, explicará el problema y te propondrá una solución para corregirlo.</p>
+                                </div>
+                                <div class="card p-6 rounded-lg">
+                                    <h4 class="text-lg font-semibold mb-2">Generación de Pruebas</h4>
+                                    <p class="text-gray-600">Acelera tu ciclo de desarrollo pidiéndole a Gemini que escriba pruebas unitarias para tu código, asegurando la calidad y cobertura.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="automatizacion-content" class="tab-content hidden">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="card p-6 rounded-lg">
+                                    <h4 class="text-lg font-semibold mb-2">Tareas de Sistema</h4>
+                                    <p class="text-gray-600">Automatiza tareas repetitivas como renombrar archivos, redimensionar imágenes o convertir formatos, todo mediante comandos de shell ejecutados por la IA.</p>
+                                </div>
+                                <div class="card p-6 rounded-lg">
+                                    <h4 class="text-lg font-semibold mb-2">Integración CI/CD</h4>
+                                    <p class="text-gray-600">Usa el modo no interactivo (`--prompt`) para integrar Gemini en tus scripts y pipelines, automatizando la generación de código o la gestión de despliegues.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="investigacion-content" class="tab-content hidden">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="card p-6 rounded-lg">
+                                    <h4 class="text-lg font-semibold mb-2">Búsqueda Web Integrada</h4>
+                                    <p class="text-gray-600">Realiza búsquedas en Google y resume los resultados sin salir de la terminal. Ideal para investigar nuevas tecnologías o encontrar soluciones a problemas.</p>
+                                </div>
+                                <div class="card p-6 rounded-lg">
+                                    <h4 class="text-lg font-semibold mb-2">Extracción de Información</h4>
+                                    <p class="text-gray-600">Procesa archivos PDF o imágenes para extraer texto y datos estructurados. Perfecto para automatizar la entrada de datos desde facturas o informes.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="creacion-content" class="tab-content hidden">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="card p-6 rounded-lg">
+                                    <h4 class="text-lg font-semibold mb-2">Brainstorming de Ideas</h4>
+                                    <p class="text-gray-600">Usa la interfaz conversacional para generar ideas para artículos, campañas de marketing, historias o cualquier proyecto creativo.</p>
+                                </div>
+                                <div class="card p-6 rounded-lg">
+                                    <h4 class="text-lg font-semibold mb-2">Creación Multimodal</h4>
+                                    <p class="text-gray-600">Genera contenido visual como imágenes o incluso conceptos para videos directamente desde la línea de comandos, integrando herramientas como Imagen y Veo.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="comandos" class="py-20 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl font-bold text-[#4A4A4A]">Comandos Esenciales</h3>
+                    <p class="mt-2 text-lg text-gray-600">Esta no es una lista exhaustiva, sino una guía interactiva de las categorías de comandos más importantes. Haz clic en una barra para ver los comandos y sus descripciones.</p>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                    <div class="chart-container">
+                        <canvas id="commandsChart"></canvas>
+                    </div>
+                    <div id="command-details-container" class="card p-6 rounded-lg min-h-[300px] lg:min-h-[450px]">
+                        <h4 id="command-category-title" class="text-xl font-semibold mb-4 text-[#5A8A82]">Selecciona una categoría</h4>
+                        <div id="command-details" class="text-gray-700 space-y-3">
+                            <p>Aquí aparecerán los detalles de los comandos de la categoría que elijas en el gráfico.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="avanzado" class="py-20">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl font-bold text-[#4A4A4A]">Potencia Avanzada: Extiende y Personaliza</h3>
+                    <p class="mt-2 text-lg text-gray-600">Lleva Gemini CLI al siguiente nivel con sus capacidades de extensibilidad y personalización para adaptarlo perfectamente a tus necesidades.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="card p-6 rounded-lg">
+                        <h4 class="text-xl font-semibold mb-2">Extensibilidad con MCP</h4>
+                        <p class="text-gray-600">Integra herramientas externas como GitHub, Docker o Blender a través del Protocolo de Contexto del Modelo (MCP), ampliando infinitamente las capacidades de la IA.</p>
+                    </div>
+                    <div class="card p-6 rounded-lg">
+                        <h4 class="text-xl font-semibold mb-2">Personalización con `GEMINI.md`</h4>
+                        <p class="text-gray-600">Crea archivos `GEMINI.md` en tu proyecto para darle a la IA contexto, instrucciones y una "personalidad" específica, como seguir guías de estilo de código.</p>
+                    </div>
+                    <div class="card p-6 rounded-lg">
+                        <h4 class="text-xl font-semibold mb-2">Gestión de Sesiones</h4>
+                        <p class="text-gray-600">Guarda y carga sesiones de chat con los comandos `/session`. Trata tus conversaciones como proyectos, manteniendo el contexto a lo largo del tiempo.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="buenas-practicas" class="py-20 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl font-bold text-[#4A4A4A]">Mejores Prácticas</h3>
+                    <p class="mt-2 text-lg text-gray-600">Para maximizar la utilidad y seguridad, ten en cuenta estas recomendaciones.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="text-center">
+                        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-[#E0F2F1] text-[#5A8A82] text-3xl font-bold">?</div>
+                        <h4 class="text-xl font-semibold mt-4">Prompts Efectivos</h4>
+                        <p class="mt-2 text-gray-600">Sé claro y detallado. Proporciona contexto y explica tu objetivo final para obtener las respuestas más precisas y útiles.</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-[#E0F2F1] text-[#5A8A82] text-3xl font-bold">🛡️</div>
+                        <h4 class="text-xl font-semibold mt-4">Seguridad Primero</h4>
+                        <p class="mt-2 text-gray-600">Gemini siempre pedirá permiso para acciones sensibles. Usa el modo `--yolo` con extrema precaución y solo en flujos de trabajo de confianza.</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-[#E0F2F1] text-[#5A8A82] text-3xl font-bold">✔️</div>
+                        <h4 class="text-xl font-semibold mt-4">Verifica la Salida</h4>
+                        <p class="mt-2 text-gray-600">Trata a la IA como un colaborador. Revisa y verifica siempre el código y los comandos generados antes de ejecutarlos para garantizar su corrección.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-[#D1CFC9]">
+        <div class="container mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-gray-700">
+            <p>&copy; 2025 Panel Interactivo del Gemini CLI. Creado para una exploración intuitiva.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabsContainer = document.getElementById('tabs-container');
+            const tabsContent = document.getElementById('tabs-content');
+
+            if (tabsContainer) {
+                tabsContainer.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'BUTTON') {
+                        const tabId = e.target.dataset.tab;
+
+                        tabsContainer.querySelectorAll('button').forEach(btn => {
+                            btn.classList.remove('active');
+                        });
+                        e.target.classList.add('active');
+
+                        tabsContent.querySelectorAll('.tab-content').forEach(content => {
+                            content.classList.add('hidden');
+                        });
+                        document.getElementById(`${tabId}-content`).classList.remove('hidden');
+                    }
+                });
+            }
+            
+            const commandData = {
+                'Gestión de Sesión': [
+                    { cmd: '/session save <nombre>', desc: 'Guarda la sesión de chat actual.' },
+                    { cmd: '/session load <nombre>', desc: 'Carga una sesión de chat guardada.' },
+                    { cmd: '/session list', desc: 'Lista todas las sesiones guardadas.' },
+                    { cmd: '/session delete <nombre>', desc: 'Elimina una sesión guardada.' }
+                ],
+                'Interacción con Archivos': [
+                    { cmd: '@<archivo/carpeta>', desc: 'Referencia un archivo o directorio en el prompt.' },
+                    { cmd: 'read-file', desc: 'Herramienta interna para leer archivos.' },
+                    { cmd: 'write-file', desc: 'Herramienta interna para escribir o crear archivos.' },
+                    { cmd: 'edit', desc: 'Herramienta interna para modificar archivos existentes.' }
+                ],
+                'Comandos Generales': [
+                    { cmd: '/help', desc: 'Muestra la ayuda con todos los comandos.' },
+                    { cmd: '/quit', desc: 'Sale del CLI y muestra estadísticas de la sesión.' },
+                    { cmd: '/stats', desc: 'Muestra estadísticas de la sesión actual.' },
+                    { cmd: '/memory add <texto>', desc: 'Añade información a la memoria persistente.' }
+                ],
+                'Ejecución y Opciones': [
+                    { cmd: '!', desc: 'Entra en modo shell para ejecutar comandos del sistema.' },
+                    { cmd: '--prompt "<texto>"', desc: 'Ejecuta un único prompt de forma no interactiva.' },
+                    { cmd: '--yolo', desc: 'Ejecuta herramientas sin pedir confirmación (usar con cuidado).' },
+                    { cmd: '--model <nombre>', desc: 'Especifica el modelo a utilizar (ej. gemini-2.5-pro).' }
+                ]
+            };
+
+            const ctx = document.getElementById('commandsChart');
+            if (ctx) {
+                const commandsChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(commandData),
+                        datasets: [{
+                            label: 'Categorías de Comandos',
+                            data: [4, 4, 4, 4], 
+                            backgroundColor: [
+                                'rgba(90, 138, 130, 0.6)',
+                                'rgba(209, 207, 201, 0.8)',
+                                'rgba(90, 138, 130, 0.6)',
+                                'rgba(209, 207, 201, 0.8)',
+                            ],
+                            borderColor: [
+                                'rgba(90, 138, 130, 1)',
+                                'rgba(150, 148, 144, 1)',
+                                'rgba(90, 138, 130, 1)',
+                                'rgba(150, 148, 144, 1)',
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                enabled: true
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                display: false
+                            },
+                            y: {
+                                ticks: {
+                                    font: {
+                                        size: 14,
+                                        weight: '500'
+                                    }
+                                }
+                            }
+                        },
+                        onClick: (event, elements) => {
+                            if (elements.length > 0) {
+                                const chartElement = elements[0];
+                                const index = chartElement.index;
+                                const category = commandsChart.data.labels[index];
+                                updateCommandDetails(category);
+                            }
+                        }
+                    }
+                });
+            }
+
+            function updateCommandDetails(category) {
+                const detailsContainer = document.getElementById('command-details');
+                const titleContainer = document.getElementById('command-category-title');
+                const commands = commandData[category];
+
+                if (!commands) return;
+
+                titleContainer.textContent = category;
+                
+                let html = '<ul class="space-y-3">';
+                commands.forEach(item => {
+                    html += `<li><code class="font-mono bg-gray-100 text-[#5A8A82] p-1 rounded-md">${item.cmd}</code><p class="text-sm text-gray-600 ml-2 inline">${item.desc}</p></li>`;
+                });
+                html += '</ul>';
+
+                detailsContainer.innerHTML = html;
+            }
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('main section');
+
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.4
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href').substring(1) === entry.target.id) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        });
+    </script>
+</body>
+</html>
